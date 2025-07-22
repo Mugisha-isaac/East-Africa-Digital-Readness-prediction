@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: east-africa-digital-readiness-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.12.0
+    healthCheckPath: /health
+    disk:
+      name: api-disk
+      mountPath: /data
+      sizeGB: 1

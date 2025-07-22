@@ -1,0 +1,23 @@
+{
+  "best_model": "Random Forest",
+  "test_r2": 0.11147350976019788,
+  "features": [
+    "location_type",
+    "household_size",
+    "age_of_respondent",
+    "gender_of_respondent",
+    "relationship_with_head",
+    "marital_status",
+    "job_type"
+  ],
+  "target": "digital_ready",
+  "description": "East Africa Youth Digital Readiness Prediction Model (Phone + Bank + Education)",
+  "dataset_size": 23524,
+  "youth_focus": true,
+  "countries": [
+    "Rwanda",
+    "Tanzania",
+    "Kenya",
+    "Uganda"
+  ]
+}
