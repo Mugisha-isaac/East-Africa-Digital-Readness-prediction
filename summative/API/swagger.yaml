@@ -1,0 +1,460 @@
+openapi: 3.0.3
+info:
+  title: East Africa Youth Digital Readiness API
+  description: |
+    FastAPI application for predicting digital readiness of youth in East Africa for job creation platform development.
+    
+    **Model predicts**: Phone Access + Bank Account + Education combined
+    
+    **Countries**: Rwanda, Tanzania, Kenya, Uganda
+    
+    **Target audience**: Youth (age ≤ 30)
+    
+    ## Features
+    - Single and batch predictions
+    - Comprehensive validation
+    - Detailed recommendations
+    - CORS enabled
+    - Health monitoring
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@digitalreadiness.api
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://your-api-domain.onrender.com
+    description: Production server
+
+tags:
+  - name: prediction
+    description: Digital readiness prediction endpoints
+  - name: health
+    description: Health and monitoring endpoints
+  - name: info
+    description: API and model information
+
+paths:
+  /:
+    get:
+      tags:
+        - info
+      summary: Get API information
+      description: Returns basic API information and available endpoints
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "East Africa Youth Digital Readiness Prediction API"
+                  description:
+                    type: string
+                  version:
+                    type: string
+                  endpoints:
+                    type: object
+                  countries:
+                    type: array
+                    items:
+                      type: string
+                  target_audience:
+                    type: string
+
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health check
+      description: Check API health and model loading status
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /model/info:
+    get:
+      tags:
+        - info
+      summary: Get model information
+      description: Returns detailed information about the loaded model
+      responses:
+        '200':
+          description: Model information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  model_type:
+                    type: string
+                    example: "Random Forest"
+                  model_performance:
+                    type: object
+                  target_variable:
+                    type: string
+                  description:
+                    type: string
+                  dataset_info:
+                    type: object
+                  features:
+                    type: array
+                    items:
+                      type: string
+                  prediction_details:
+                    type: object
+        '500':
+          description: Model metadata not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /predict/users:
+    post:
+      tags:
+        - prediction
+      summary: Predict digital readiness for multiple users
+      description: |
+        Predict digital readiness for an array of youth profiles.
+        This is the main endpoint for batch predictions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersInput'
+            examples:
+              multiple_users:
+                summary: Multiple users example
+                value:
+                  users:
+                    - location_type: 1
+                      household_size: 4
+                      age_of_respondent: 22
+                      gender_of_respondent: 1
+                      relationship_with_head: 2
+                      marital_status: 3
+                      job_type: 3
+                    - location_type: 0
+                      household_size: 6
+                      age_of_respondent: 19
+                      gender_of_respondent: 0
+                      relationship_with_head: 3
+                      marital_status: 3
+                      job_type: 1
+                    - location_type: 1
+                      household_size: 3
+                      age_of_respondent: 28
+                      gender_of_respondent: 1
+                      relationship_with_head: 1
+                      marital_status: 2
+                      job_type: 9
+      responses:
+        '200':
+          description: Successful predictions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutput'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Prediction error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /predict:
+    post:
+      tags:
+        - prediction
+      summary: Predict digital readiness for single user
+      description: Predict digital readiness for a single youth profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionInput'
+            examples:
+              urban_professional:
+                summary: Urban professional youth
+                value:
+                  location_type: 1
+                  household_size: 4
+                  age_of_respondent: 22
+                  gender_of_respondent: 1
+                  relationship_with_head: 2
+                  marital_status: 3
+                  job_type: 3
+              rural_female:
+                summary: Rural young female
+                value:
+                  location_type: 0
+                  household_size: 6
+                  age_of_respondent: 19
+                  gender_of_respondent: 0
+                  relationship_with_head: 3
+                  marital_status: 3
+                  job_type: 1
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionOutput'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Prediction error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    PredictionInput:
+      type: object
+      required:
+        - location_type
+        - household_size
+        - age_of_respondent
+        - gender_of_respondent
+        - relationship_with_head
+        - marital_status
+        - job_type
+      properties:
+        location_type:
+          type: integer
+          minimum: 0
+          maximum: 1
+          description: "Location type: 0 = Rural, 1 = Urban"
+          example: 1
+        household_size:
+          type: integer
+          minimum: 1
+          maximum: 20
+          description: "Number of people in household"
+          example: 4
+        age_of_respondent:
+          type: integer
+          minimum: 16
+          maximum: 30
+          description: "Age of respondent (youth focus: 16-30 years)"
+          example: 22
+        gender_of_respondent:
+          type: integer
+          minimum: 0
+          maximum: 1
+          description: "Gender: 0 = Female, 1 = Male"
+          example: 1
+        relationship_with_head:
+          type: integer
+          minimum: 0
+          maximum: 5
+          description: "Relationship with household head"
+          example: 2
+        marital_status:
+          type: integer
+          minimum: 0
+          maximum: 4
+          description: "Marital status"
+          example: 3
+        job_type:
+          type: integer
+          minimum: 0
+          maximum: 15
+          description: "Type of job/occupation"
+          example: 3
+
+    UsersInput:
+      type: object
+      required:
+        - users
+      properties:
+        users:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: "Array of user profiles for prediction"
+          items:
+            $ref: '#/components/schemas/PredictionInput'
+
+    PredictionOutput:
+      type: object
+      properties:
+        digital_readiness_score:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: "Digital readiness prediction score"
+          example: 0.6523
+        digital_readiness_percentage:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 100.0
+          description: "Digital readiness as percentage"
+          example: 65.23
+        readiness_category:
+          type: string
+          enum:
+            - "High Digital Readiness"
+            - "Moderate Digital Readiness"
+            - "Low Digital Readiness"
+            - "Very Low Digital Readiness"
+          description: "Categorical assessment of digital readiness"
+          example: "Moderate Digital Readiness"
+        recommendation:
+          type: string
+          description: "Personalized recommendation based on prediction"
+          example: "Good potential for digital job platform. Consider providing additional digital skills training for this 22-year-old male from urban area."
+        input_summary:
+          type: object
+          description: "Human-readable summary of input characteristics"
+          properties:
+            profile:
+              type: object
+              properties:
+                age:
+                  type: integer
+                gender:
+                  type: string
+                location:
+                  type: string
+                household_size:
+                  type: integer
+            social:
+              type: object
+            economic:
+              type: object
+        model_info:
+          type: object
+          description: "Information about the model used"
+          properties:
+            model_type:
+              type: string
+            model_r2_score:
+              type: number
+            prediction_target:
+              type: string
+
+    UsersOutput:
+      type: object
+      properties:
+        predictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredictionOutput'
+        summary:
+          type: object
+          properties:
+            total_predictions:
+              type: integer
+              description: "Total number of predictions made"
+            average_score:
+              type: number
+              format: float
+              description: "Average digital readiness score"
+            score_distribution:
+              type: object
+              properties:
+                high_readiness:
+                  type: integer
+                  description: "Count of high readiness scores (≥0.7)"
+                moderate_readiness:
+                  type: integer
+                  description: "Count of moderate readiness scores (0.4-0.69)"
+                low_readiness:
+                  type: integer
+                  description: "Count of low readiness scores (0.2-0.39)"
+                very_low_readiness:
+                  type: integer
+                  description: "Count of very low readiness scores (<0.2)"
+            highest_score:
+              type: number
+              format: float
+              description: "Highest score in the batch"
+            lowest_score:
+              type: number
+              format: float
+              description: "Lowest score in the batch"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ["healthy", "unhealthy"]
+          example: "healthy"
+        message:
+          type: string
+          example: "API is running and model is loaded"
+        model_loaded:
+          type: boolean
+          example: true
+        api_version:
+          type: string
+          example: "1.0.0"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Error type"
+        message:
+          type: string
+          description: "Error message"
+        details:
+          type: string
+          description: "Additional error details"
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Validation error"
+        message:
+          type: string
+          example: "Please check your input data"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+              msg:
+                type: string
+              type:
+                type: string

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>East Africa Youth Digital Readiness API Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .section h3 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .add-user {
+            background-color: #27ae60;
+        }
+        .add-user:hover {
+            background-color: #219a52;
+        }
+        .clear-users {
+            background-color: #e74c3c;
+        }
+        .clear-users:hover {
+            background-color: #c0392b;
+        }
+        .user-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .user-card h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .remove-user {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .response {
+            background-color: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            border-left-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+        .success {
+            border-left-color: #27ae60;
+            background-color: #f0f9f4;
+        }
+        .info-box {
+            background-color: #d5edf8;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .endpoint-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 East Africa Youth Digital Readiness API</h1>
+        <p class="subtitle">Test the prediction API with multiple user profiles</p>
+        
+        <div class="endpoint-info">
+            <strong>Primary Endpoint:</strong> POST /predict/users<br>
+            <strong>API Documentation:</strong> <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a><br>
+            <strong>Swagger File:</strong> <a href="http://localhost:8000/swagger.yaml" target="_blank">http://localhost:8000/swagger.yaml</a>
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Field Descriptions:</strong><br>
+            • <strong>Location:</strong> 0 = Rural, 1 = Urban<br>
+            • <strong>Gender:</strong> 0 = Female, 1 = Male<br>
+            • <strong>Age:</strong> 16-30 years (youth focus)<br>
+            • <strong>Household Size:</strong> 1-20 people<br>
+            • <strong>Relationship with Head:</strong> 0-5 (0=Head, 1=Spouse, 2=Child, etc.)<br>
+            • <strong>Marital Status:</strong> 0-4 (0=Single, 1=Married, etc.)<br>
+            • <strong>Job Type:</strong> 0-15 (different occupation categories)
+        </div>
+
+        <div class="section">
+            <h3>👤 Add User Profile</h3>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Location Type:</label>
+                    <select id="location_type">
+                        <option value="0">Rural</option>
+                        <option value="1" selected>Urban</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Household Size:</label>
+                    <input type="number" id="household_size" min="1" max="20" value="4">
+                </div>
+                <div class="form-group">
+                    <label>Age:</label>
+                    <input type="number" id="age_of_respondent" min="16" max="30" value="22">
+                </div>
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <select id="gender_of_respondent">
+                        <option value="0">Female</option>
+                        <option value="1" selected>Male</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Relationship with Head:</label>
+                    <input type="number" id="relationship_with_head" min="0" max="5" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Marital Status:</label>
+                    <input type="number" id="marital_status" min="0" max="4" value="3">
+                </div>
+                <div class="form-group">
+                    <label>Job Type:</label>
+                    <input type="number" id="job_type" min="0" max="15" value="3">
+                </div>
+            </div>
+            <button class="add-user" onclick="addUser()">➕ Add User</button>
+            <button onclick="addSampleUsers()">📋 Add Sample Users</button>
+        </div>
+
+        <div class="section">
+            <h3>👥 User Profiles (<span id="userCount">0</span>)</h3>
+            <div id="usersList"></div>
+            <button class="clear-users" onclick="clearUsers()">🗑️ Clear All Users</button>
+        </div>
+
+        <div class="section">
+            <h3>🚀 Make Prediction</h3>
+            <button onclick="predictUsers()">🎯 Predict Digital Readiness</button>
+            <button onclick="testHealth()">💚 Test API Health</button>
+            <button onclick="getModelInfo()">ℹ️ Get Model Info</button>
+        </div>
+
+        <div id="response"></div>
+    </div>
+
+    <script>
+        let users = [];
+        const API_BASE = 'http://localhost:8000';
+
+        function updateUserDisplay() {
+            const usersList = document.getElementById('usersList');
+            const userCount = document.getElementById('userCount');
+            
+            usersList.innerHTML = '';
+            userCount.textContent = users.length;
+
+            users.forEach((user, index) => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <button class="remove-user" onclick="removeUser(${index})">×</button>
+                    <h4>User ${index + 1}</h4>
+                    <strong>Profile:</strong> ${user.age_of_respondent}yr ${user.gender_of_respondent === 1 ? 'Male' : 'Female'}, 
+                    ${user.location_type === 1 ? 'Urban' : 'Rural'}<br>
+                    <strong>Household:</strong> ${user.household_size} people<br>
+                    <strong>Work:</strong> Job type ${user.job_type}<br>
+                    <strong>Social:</strong> Relationship ${user.relationship_with_head}, Marital ${user.marital_status}
+                `;
+                usersList.appendChild(userCard);
+            });
+        }
+
+        function addUser() {
+            const user = {
+                location_type: parseInt(document.getElementById('location_type').value),
+                household_size: parseInt(document.getElementById('household_size').value),
+                age_of_respondent: parseInt(document.getElementById('age_of_respondent').value),
+                gender_of_respondent: parseInt(document.getElementById('gender_of_respondent').value),
+                relationship_with_head: parseInt(document.getElementById('relationship_with_head').value),
+                marital_status: parseInt(document.getElementById('marital_status').value),
+                job_type: parseInt(document.getElementById('job_type').value)
+            };
+
+            // Validation
+            if (user.age_of_respondent < 16 || user.age_of_respondent > 30) {
+                alert('Age must be between 16 and 30 for youth focus');
+                return;
+            }
+
+            users.push(user);
+            updateUserDisplay();
+            
+            // Clear form
+            document.getElementById('age_of_respondent').value = Math.floor(Math.random() * 15) + 16;
+            document.getElementById('household_size').value = Math.floor(Math.random() * 8) + 2;
+        }
+
+        function removeUser(index) {
+            users.splice(index, 1);
+            updateUserDisplay();
+        }
+
+        function clearUsers() {
+            users = [];
+            updateUserDisplay();
+        }
+
+        function addSampleUsers() {
+            const sampleUsers = [
+                {
+                    location_type: 1, household_size: 4, age_of_respondent: 22,
+                    gender_of_respondent: 1, relationship_with_head: 2, marital_status: 3, job_type: 3
+                },
+                {
+                    location_type: 0, household_size: 6, age_of_respondent: 19,
+                    gender_of_respondent: 0, relationship_with_head: 3, marital_status: 3, job_type: 1
+                },
+                {
+                    location_type: 1, household_size: 3, age_of_respondent: 28,
+                    gender_of_respondent: 1, relationship_with_head: 1, marital_status: 2, job_type: 9
+                }
+            ];
+
+            users = users.concat(sampleUsers);
+            updateUserDisplay();
+        }
+
+        async function predictUsers() {
+            if (users.length === 0) {
+                alert('Please add at least one user profile');
+                return;
+            }
+
+            const requestData = { users: users };
+            
+            try {
+                const response = await fetch(`${API_BASE}/predict/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                displayResponse(data, response.ok);
+
+            } catch (error) {
+                displayResponse(`Error: ${error.message}`, false);
+            }
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                displayResponse(data, response.ok);
+            } catch (error) {
+                displayResponse(`Error: ${error.message}`, false);
+            }
+        }
+
+        async function getModelInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/model/info`);
+                const data = await response.json();
+                displayResponse(data, response.ok);
+            } catch (error) {
+                displayResponse(`Error: ${error.message}`, false);
+            }
+        }
+
+        function displayResponse(data, isSuccess) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = `<div class="response ${isSuccess ? 'success' : 'error'}">${JSON.stringify(data, null, 2)}</div>`;
+            responseDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize
+        updateUserDisplay();
+    </script>
+</body>
+</html>
