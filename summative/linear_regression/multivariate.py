@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 """
-East Africa Youth Financial Inclusion Analysis - Simplified Version
-==================================================================
+East Africa Youth Digital Readiness Model Training
+==================================================
 
-Comprehensive multivariate linear regression analysis for youth job creation platform
-using East Africa Financial Inclusion Survey data with gradient descent implementation
-and model comparison.
+Model training script for youth job creation platform using East Africa 
+Financial Inclusion Survey data with advanced machine learning techniques.
 
-Key Features:
-- Youth-focused analysis (age ≤ 30)
-- Custom gradient descent implementation
-- Multiple model comparison (Linear Regression, Decision Tree, Random Forest)
-- Digital financial inclusion insights
-- Prediction capabilities for job platform development
+Purpose: Train and save models for API deployment
+Target: Digital readiness (phone + bank + education combined)
+Output: Trained models ready for FastAPI integration
 
 Dataset: East Africa Financial Inclusion Survey
 Countries: Rwanda, Tanzania, Kenya, Uganda
-Target: Bank account ownership prediction
+Focus: Youth (age ≤ 30) digital readiness prediction
 """
 
 import pandas as pd
@@ -39,8 +35,8 @@ plt.style.use('seaborn-v0_8')
 sns.set_palette("husl")
 
 print("="*80)
-print("EAST AFRICA YOUTH FINANCIAL INCLUSION ANALYSIS")
-print("For Job Creation Platform Development")
+print("EAST AFRICA YOUTH DIGITAL READINESS MODEL TRAINING")
+print("Training models for FastAPI deployment")
 print("="*80)
 
 # ===== DATA LOADING AND INITIAL EXPLORATION =====
@@ -127,67 +123,29 @@ print("Top features by correlation with DIGITAL READINESS (phone + bank + educat
 for feature, corr in correlations.head(5).items():
     print(f"  {feature}: {corr:.3f}")
 
-# ===== VISUALIZATIONS =====
-print("\n📊 Creating visualizations...")
+# ===== ESSENTIAL VISUALIZATIONS FOR TRAINING =====
+print("\n📊 Creating training visualizations...")
 
-# Create comprehensive visualization
-fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-fig.suptitle('East Africa Youth Digital Readiness Analysis (Phone + Bank + Education)', fontsize=16, fontweight='bold')
+# Create focused visualization for model training
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig.suptitle('Digital Readiness Model Training Overview', fontsize=14, fontweight='bold')
 
-# 1. Digital readiness by country
-country_digital = data.groupby('country')['digital_ready'].mean() * 100
-country_digital.plot(kind='bar', ax=axes[0,0], color='lightgreen', rot=45)
-axes[0,0].set_title('Digital Readiness by Country')
-axes[0,0].set_ylabel('Percentage (%)')
+# 1. Target distribution
+target_counts = np.bincount(y)
+target_labels = ['Not Ready', 'Digitally Ready']
+axes[0].bar(target_labels, target_counts, color=['lightcoral', 'lightgreen'])
+axes[0].set_title('Target Variable Distribution')
+axes[0].set_ylabel('Count')
+for i, count in enumerate(target_counts):
+    axes[0].text(i, count + max(target_counts)*0.01, f'{count:,}', ha='center', fontweight='bold')
 
-# 2. Youth vs Overall digital readiness
-categories = ['Overall Population', 'Youth (≤30)']
-rates = [digital_ready_rate, youth_digital_ready_rate]
-bars = axes[0,1].bar(categories, rates, color=['lightblue', 'lightcoral'])
-axes[0,1].set_title('Digital Readiness: Overall vs Youth')
-axes[0,1].set_ylabel('Percentage (%)')
-for bar, rate in zip(bars, rates):
-    axes[0,1].text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.2, 
-                   f'{rate:.1f}%', ha='center', fontweight='bold')
-
-# 3. Components of digital readiness
-component_categories = ['Bank Account', 'Phone Access', 'Education', 'All Three (Target)']
-component_metrics = [
-    bank_ownership_rate,
-    (data['cellphone_access'] == 'Yes').mean() * 100,
-    data['education_level'].isin(['Primary education', 'Secondary education', 'Tertiary education']).mean() * 100,
-    digital_ready_rate
-]
-axes[0,2].bar(component_categories, component_metrics, color=['skyblue', 'lightgreen', 'orange', 'red'])
-axes[0,2].set_title('Digital Readiness Components')
-axes[0,2].set_ylabel('Percentage (%)')
-axes[0,2].tick_params(axis='x', rotation=45)
-
-# 4. Feature correlation heatmap
-correlation_matrix = X.corr()
-top_features = correlations.head(6).index
-sns.heatmap(correlation_matrix.loc[top_features, top_features], 
-            annot=True, cmap='coolwarm', center=0, ax=axes[1,0])
-axes[1,0].set_title('Feature Correlation Matrix (Top Features)')
-
-# 5. Age distribution by digital readiness
-for digital_status in [0, 1]:
-    subset = data_processed[data_processed['digital_ready'] == digital_status]
-    axes[1,1].hist(subset['age_of_respondent'], alpha=0.7, 
-                   label=f'Digitally Ready: {"Yes" if digital_status else "No"}', bins=20)
-axes[1,1].set_title('Age Distribution by Digital Readiness')
-axes[1,1].set_xlabel('Age')
-axes[1,1].set_ylabel('Frequency')
-axes[1,1].legend()
-
-# 6. Gender impact on digital readiness
-gender_impact = data_processed.groupby('gender_of_respondent')['digital_ready'].mean()
-gender_labels = ['Female', 'Male'] 
-axes[1,2].bar(gender_labels, gender_impact.values, color=['pink', 'lightblue'])
-axes[1,2].set_title('Digital Readiness by Gender')
-axes[1,2].set_ylabel('Digital Readiness Rate')
-for i, v in enumerate(gender_impact.values):
-    axes[1,2].text(i, v + 0.005, f'{v:.3f}', ha='center', fontweight='bold')
+# 2. Feature importance (correlation with target)
+top_features = correlations.head(8)
+axes[1].barh(range(len(top_features)), top_features.values, color='skyblue')
+axes[1].set_yticks(range(len(top_features)))
+axes[1].set_yticklabels(top_features.index)
+axes[1].set_xlabel('Correlation with Digital Readiness')
+axes[1].set_title('Top Feature Importance')
 
 plt.tight_layout()
 plt.show()
@@ -295,11 +253,11 @@ for name, metrics in results.items():
 print("="*70)
 print(f"Best Model: {best_model_name} (Test R² = {results[best_model_name]['test_r2']:.4f})")
 
-# ===== MODEL COMPARISON VISUALIZATION =====
-print("\n📊 Model comparison visualization...")
+# ===== MODEL PERFORMANCE VISUALIZATION =====
+print("\n📊 Model performance visualization...")
 
-fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-fig.suptitle('Model Comparison Analysis', fontsize=16, fontweight='bold')
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig.suptitle('Model Performance Comparison', fontsize=14, fontweight='bold')
 
 # R² comparison
 model_names = list(results.keys())
@@ -309,41 +267,25 @@ test_r2 = [results[name]['test_r2'] for name in model_names]
 x = np.arange(len(model_names))
 width = 0.35
 
-axes[0,0].bar(x - width/2, train_r2, width, label='Training R²', alpha=0.8)
-axes[0,0].bar(x + width/2, test_r2, width, label='Test R²', alpha=0.8)
-axes[0,0].set_xlabel('Models')
-axes[0,0].set_ylabel('R² Score')
-axes[0,0].set_title('R² Score Comparison')
-axes[0,0].set_xticks(x)
-axes[0,0].set_xticklabels(model_names, rotation=45, ha='right')
-axes[0,0].legend()
-axes[0,0].grid(True, alpha=0.3)
+axes[0].bar(x - width/2, train_r2, width, label='Training R²', alpha=0.8)
+axes[0].bar(x + width/2, test_r2, width, label='Test R²', alpha=0.8)
+axes[0].set_xlabel('Models')
+axes[0].set_ylabel('R² Score')
+axes[0].set_title('R² Score Comparison')
+axes[0].set_xticks(x)
+axes[0].set_xticklabels(model_names, rotation=45, ha='right')
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
 
-# MSE comparison
-test_mse = [results[name]['test_mse'] for name in model_names]
-axes[0,1].bar(model_names, test_mse, color='lightcoral', alpha=0.8)
-axes[0,1].set_xlabel('Models')
-axes[0,1].set_ylabel('Mean Squared Error')
-axes[0,1].set_title('Test MSE Comparison')
-axes[0,1].tick_params(axis='x', rotation=45)
-axes[0,1].grid(True, alpha=0.3)
-
-# Best model predictions
+# Best model predictions vs actual
 best_model = results[best_model_name]['model']
 best_pred = best_model.predict(X_test_scaled)
-axes[1,0].scatter(y_test, best_pred, alpha=0.6, color='green')
-axes[1,0].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', linewidth=2)
-axes[1,0].set_xlabel('Actual Values')
-axes[1,0].set_ylabel('Predicted Values')
-axes[1,0].set_title(f'Best Model ({best_model_name}): Actual vs Predicted')
-axes[1,0].grid(True, alpha=0.3)
-
-# Gradient descent loss curve
-axes[1,1].plot(gd_model.cost_history, color='blue', linewidth=2)
-axes[1,1].set_xlabel('Iterations')
-axes[1,1].set_ylabel('Cost (MSE)')
-axes[1,1].set_title('Gradient Descent: Loss Curve')
-axes[1,1].grid(True, alpha=0.3)
+axes[1].scatter(y_test, best_pred, alpha=0.6, color='green')
+axes[1].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', linewidth=2)
+axes[1].set_xlabel('Actual Values')
+axes[1].set_ylabel('Predicted Values')
+axes[1].set_title(f'Best Model: Actual vs Predicted')
+axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()
@@ -358,8 +300,8 @@ joblib.dump(label_encoders, '../../encoders.pkl')
 
 # Save metadata
 metadata = {
-    'best_model': best_model_name,
-    'test_r2': results[best_model_name]['test_r2'],
+    'model_type': best_model_name,
+    'r2_score': results[best_model_name]['test_r2'],
     'features': list(X.columns),
     'target': 'digital_ready',
     'description': 'East Africa Youth Digital Readiness Prediction Model (Phone + Bank + Education)',
@@ -375,65 +317,9 @@ print(f"✓ Best model ({best_model_name}) saved to: ../../best_model.pkl")
 print("✓ Scaler and encoders saved")
 print("✓ Metadata saved")
 
-# ===== PREDICTION EXAMPLES =====
-print("\n🎯 Digital Readiness Prediction Examples for Youth Job Platform...")
-
-# Example youth profiles for prediction (excluding the target components)
-youth_profiles = [
-    {
-        'name': 'Urban Professional Youth',
-        'location_type': 1, 'household_size': 4, 'age_of_respondent': 22,
-        'gender_of_respondent': 1, 'relationship_with_head': 2, 'marital_status': 3, 'job_type': 3
-    },
-    {
-        'name': 'Rural Young Female',
-        'location_type': 0, 'household_size': 6, 'age_of_respondent': 19,
-        'gender_of_respondent': 0, 'relationship_with_head': 3, 'marital_status': 3, 'job_type': 1
-    },
-    {
-        'name': 'Semi-Urban Entrepreneur',
-        'location_type': 1, 'household_size': 3, 'age_of_respondent': 28,
-        'gender_of_respondent': 1, 'relationship_with_head': 1, 'marital_status': 2, 'job_type': 9
-    }
-]
-
-print("Predicting DIGITAL READINESS (phone + bank + education) for different youth profiles:")
-print("-" * 80)
-
-for i, profile in enumerate(youth_profiles, 1):
-    # Create feature vector (excluding cellphone_access, education_level, bank_account as they're in target)
-    features = np.array([[
-        profile['location_type'], profile['household_size'], profile['age_of_respondent'],
-        profile['gender_of_respondent'], profile['relationship_with_head'],
-        profile['marital_status'], profile['job_type']
-    ]])
-    
-    # Scale and predict
-    features_scaled = scaler.transform(features)
-    prediction = best_model.predict(features_scaled)[0]
-    
-    print(f"{i}. {profile['name']}:")
-    print(f"   � Age: {profile['age_of_respondent']} years")
-    print(f"   🏠 Location: {'Urban' if profile['location_type'] else 'Rural'}")
-    print(f"   👥 Gender: {'Male' if profile['gender_of_respondent'] else 'Female'}")
-    print(f"   💼 Job Type: {profile['job_type']}")
-    print(f"   � Digital Readiness Prediction: {prediction:.3f} ({prediction*100:.1f}%)")
-    
-    if prediction > 0.5:
-        status = "HIGH likelihood - Ready for digital job platform!"
-        emoji = "✅"
-    elif prediction > 0.2:
-        status = "MODERATE likelihood - May need some digital support"
-        emoji = "⚠️"
-    else:
-        status = "LOW likelihood - Requires comprehensive digital inclusion"
-        emoji = "❌"
-    
-    print(f"   {emoji} Status: {status}\n")
-
 # ===== FINAL SUMMARY =====
 print("="*80)
-print("COMPREHENSIVE ANALYSIS SUMMARY")
+print("TRAINING COMPLETE - DIGITAL READINESS MODEL")
 print("="*80)
 
 print(f"""
@@ -442,34 +328,24 @@ print(f"""
    • Youth Samples (≤30): {len(youth_data):,} ({len(youth_data)/len(data)*100:.1f}%)
    • Countries: {', '.join(countries.index)}
 
-👥 KEY YOUTH INSIGHTS:
+👥 KEY INSIGHTS:
    • Overall Digital Readiness: {digital_ready_rate:.1f}%
    • Youth Digital Readiness: {youth_digital_ready_rate:.1f}%
-   • Digitally Ready Youth: {len(digital_ready):,}
    • Target: Phone + Bank Account + Education combined
 
 🤖 MODEL PERFORMANCE:
    • Best Model: {best_model_name}
    • Test R² Score: {results[best_model_name]['test_r2']:.4f}
    • Feature Count: {len(X.columns)}
-   • Prediction Target: Digital Readiness (Phone + Bank + Education)
 
-💡 BUSINESS RECOMMENDATIONS:
-   1. Focus on youth with highest digital readiness scores
-   2. Age and location are key predictors of digital readiness
-   3. Gender-specific approaches may be beneficial
-   4. Job type influences digital readiness likelihood
-   5. Urban youth show higher digital readiness potential
-
-🚀 DEPLOYMENT READY:
-   ✓ Models trained to predict comprehensive digital readiness
-   ✓ Target combines phone access, banking, and education
+🚀 READY FOR API DEPLOYMENT:
+   ✓ Model saved and ready for API integration
+   ✓ Preprocessing components saved
+   ✓ Predicts comprehensive digital readiness
    ✓ Perfect for identifying job platform ready candidates
-   ✓ Production-ready model and preprocessing components saved
 """)
 
 print("="*80)
-print("DIGITAL READINESS ANALYSIS COMPLETE!")
-print("Model now predicts: Phone Access + Bank Account + Education")
-print("Perfect for identifying youth ready for digital job platforms!")
+print("MODEL TRAINING COMPLETE!")
+print("Use the FastAPI application for predictions")
 print("="*80)

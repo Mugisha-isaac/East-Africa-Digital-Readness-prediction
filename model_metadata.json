@@ -1,6 +1,6 @@
 {
-  "best_model": "Random Forest",
-  "test_r2": 0.11147350976019788,
+  "model_type": "Random Forest",
+  "r2_score": 0.11147350976019788,
   "features": [
     "location_type",
     "household_size",
