@@ -16,9 +16,8 @@ import joblib
 import numpy as np
 import json
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List
 import uvicorn
-
 from contextlib import asynccontextmanager
 
 @asynccontextmanager

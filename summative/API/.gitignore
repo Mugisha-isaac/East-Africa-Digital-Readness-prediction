@@ -7,8 +7,7 @@ __pycache__/
 
 # Virtual environments
 .env
-.venv
-env/
+.venv/
 venv/
 
 # IDE
@@ -22,6 +21,11 @@ Thumbs.db
 # Logs
 *.log
 
-# Old/backup files
+# Backup/temporary files
 *_old.py
 *.bak
+*.tmp
+
+# Docker (keep for local development)
+# Uncomment if you don't want to track docker-compose.yml
+# docker-compose.yml

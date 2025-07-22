@@ -1,12 +1,12 @@
-# 🚀 Render Deployment Guide
+# 🚀 Render Docker Deployment Guide
 
-This guide will help you deploy the East Africa Youth Digital Readiness API to Render.
+This guide will help you deploy the East Africa Youth Digital Readiness API to Render using Docker.
 
 ## 📋 Prerequisites
 
 1. **GitHub Account**: Your code should be in a GitHub repository
 2. **Render Account**: Sign up at [render.com](https://render.com)
-3. **Model Files**: Ensure all `.pkl` files are in this directory
+3. **Docker Support**: Using Docker for reliable, consistent deployments
 
 ## 🛠️ Deployment Steps
 
@@ -15,11 +15,11 @@ This guide will help you deploy the East Africa Youth Digital Readiness API to R
 1. **Push your code to GitHub**:
    ```bash
    git add .
-   git commit -m "Prepare for Render deployment"
+   git commit -m "Deploy API with Docker to Render"
    git push origin main
    ```
 
-### Step 2: Deploy on Render
+### Step 2: Deploy on Render with Docker
 
 1. **Go to Render Dashboard**:
    - Visit [render.com](https://render.com)
@@ -32,10 +32,44 @@ This guide will help you deploy the East Africa Youth Digital Readiness API to R
 
 3. **Configure the Service**:
    - **Name**: `east-africa-digital-readiness-api`
-   - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python main.py`
+   - **Runtime**: `Docker`
+   - **Root Directory**: `summative/API` (if API is in subdirectory)
+   - **Docker Command**: `python main.py`
    - **Plan**: Free (for testing) or Starter (for production)
+
+4. **Environment Variables** (automatically set):
+   - `PORT`: Will be automatically set by Render
+
+5. **Deploy**:
+   - Click "Create Web Service"
+   - Wait for Docker build and deployment (10-15 minutes)
+
+### Step 3: Verify Deployment
+
+Once deployed, your API will be available at:
+- **API Base URL**: `https://your-service-name.onrender.com`
+- **Documentation**: `https://your-service-name.onrender.com/docs`
+- **Health Check**: `https://your-service-name.onrender.com/health`
+
+## 🐳 Docker Configuration
+
+This deployment uses Docker with:
+
+- **Base Image**: `python:3.11-slim`
+- **Port**: 8000
+- **Health Check**: Built-in `/health` endpoint monitoring
+- **Security**: Non-root user execution
+- **Optimization**: Multi-stage build with dependency caching
+
+## 🔧 Configuration Files
+
+Docker deployment includes:
+
+- `Dockerfile`: Container configuration
+- `docker-compose.yml`: Local testing setup
+- `.dockerignore`: Build optimization
+- `requirements.txt`: Python dependencies
+- `render.yaml`: Render service configuration
 
 4. **Set Environment Variables** (if needed):
    - `PORT`: Will be automatically set by Render
