@@ -40,8 +40,8 @@ Use the **Swagger UI** at https://alu-ml-summatives-latest.onrender.com/docs to 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-repo/east-africa-digital-readiness.git
-   cd east-africa-digital-readiness/summative/FlutterApp/youth_digital_readness_predicting_app
+   git clone https://github.com/Mugisha-isaac/East-Africa-Digital-Readness-prediction
+   cd East-Africa-Digital-Readness-prediction/summative/FlutterApp/youth_digital_readness_predicting_app
    ```
 
 2. **Install Flutter dependencies:**
