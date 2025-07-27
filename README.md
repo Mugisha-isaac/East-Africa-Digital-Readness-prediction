@@ -25,7 +25,7 @@ Use the **Swagger UI** at https://alu-ml-summatives-latest.onrender.com/docs to 
 7. `job_type` (0-15)
 
 ## 📱 YouTube Demo Video
-**Watch the complete demo:** [East Africa Youth Talent Platform Demo](https://youtu.be/your-video-id)
+**Watch the complete demo:** [East Africa Youth Talent Platform Demo](https://youtu.be/5VuBZ8hnKlQ)
 
 *5-minute demonstration covering API functionality, Flutter app usage, and how to identify talent-ready youth*
 
