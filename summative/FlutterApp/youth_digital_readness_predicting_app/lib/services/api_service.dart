@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Update this URL to your deployed API endpoint
   static const String baseUrl = 'https://alu-ml-summatives-latest.onrender.com';
 
   static const Map<String, String> headers = {
